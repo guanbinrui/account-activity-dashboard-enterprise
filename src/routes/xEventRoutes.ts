@@ -1,4 +1,5 @@
 import { Buffer } from 'buffer'; // Bun provides Buffer
+import crypto from 'crypto';
 
 // Helper to create a JSON response (can be shared or redefined)
 function jsonResponse(status: number, body: any, method: string, pathname: string): Response {
@@ -32,11 +33,9 @@ async function handleCrcCheck(req: Request, url: URL): Promise<Response> {
     }
 
     try {
-        const hasher = new Bun.CryptoHasher("sha256", consumerSecret);
-        hasher.update(crcToken);
-        const arrayBufferDigest = hasher.digest(); // Get digest as ArrayBuffer
-
-        const responseToken = 'sha256=' + Buffer.from(arrayBufferDigest).toString('base64');
+        const hmac = crypto.createHmac("sha256", consumerSecret);
+        hmac.update(crcToken);
+        const responseToken = "sha256=" + hmac.digest("base64");
         
         console.log(`[X_EVENT_CRC] Generated response_token: ${responseToken}`);
         return jsonResponse(200, { response_token: responseToken }, req.method, url.pathname);
