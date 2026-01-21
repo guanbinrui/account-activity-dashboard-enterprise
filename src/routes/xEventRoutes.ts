@@ -1,4 +1,3 @@
-import { Buffer } from 'buffer'; // Bun provides Buffer
 import crypto from 'crypto';
 
 // Helper to create a JSON response (can be shared or redefined)

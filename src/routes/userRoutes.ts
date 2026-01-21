@@ -1,5 +1,3 @@
-import type { ServerWebSocket } from 'bun';
-
 // Helper to create a JSON response (can be shared or redefined)
 // For now, redefining for simplicity, but ideally, this would be a shared utility.
 function jsonResponse(status: number, body: any, method: string, pathname: string): Response {

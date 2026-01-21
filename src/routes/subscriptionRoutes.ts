@@ -1,4 +1,3 @@
-import type { ServerWebSocket } from 'bun'; // Though not directly used, kept for consistency if other types are needed
 import crypto from 'crypto';
 import OAuth from 'oauth-1.0a';
 
