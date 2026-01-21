@@ -4,7 +4,11 @@ import { handleUserRoutes } from "./src/routes/userRoutes"; // Import the new us
 import { handleXEventRoutes } from "./src/routes/xEventRoutes"; // Import the X event handler
 import path from "node:path"; // For path joining
 
-const projectRoot = import.meta.dir;
+// Detect if running from dist directory and adjust project root accordingly
+const currentDir = import.meta.dir;
+const projectRoot = currentDir.endsWith("/dist") || currentDir.endsWith("\\dist") 
+  ? path.resolve(currentDir, "..") 
+  : currentDir;
 const publicFolder = path.resolve(projectRoot, "public");
 
 // Set to store active WebSocket connections for live events
@@ -87,22 +91,26 @@ serve({
 
     // Serve index.html for the root path
     if (url.pathname === "/") {
-      const indexHtmlPath = path.join(projectRoot, "index.html"); // Serve from root
+      // Try dist/index.html first (for built version), then fall back to root index.html
+      let indexHtmlPath = path.join(currentDir, "index.html");
+      let indexFile = Bun.file(indexHtmlPath);
+      if (!(await indexFile.exists())) {
+        indexHtmlPath = path.join(projectRoot, "index.html");
+        indexFile = Bun.file(indexHtmlPath);
+      }
       console.log(`[RESPONSE] ${req.method} ${url.pathname} - Status: 200, Content-Type: text/html, File: ${indexHtmlPath}`);
-      return new Response(Bun.file(indexHtmlPath), {
+      return new Response(indexFile, {
         headers: { "Content-Type": "text/html" },
       });
     }
-    
-    // TODO: Add static file serving for /public/* here later
 
     // Fallback to 404 Not Found
     console.log(`[RESPONSE] ${req.method} ${url.pathname} - Status: 404, Body: "Not Found"`);
     return new Response("Not Found", { status: 404 });
   },
   port: process.env.PORT ? parseInt(process.env.PORT) : 3000, 
-  hostname: "localhost",
-  development: true, 
+  hostname: "0.0.0.0", // Bind to all interfaces to allow Docker networking
+  development: process.env.NODE_ENV !== "production", 
   websocket: {
     open(ws) {
       liveEventClients.add(ws);

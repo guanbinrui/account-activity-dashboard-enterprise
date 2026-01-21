@@ -107,12 +107,83 @@ To receive live events from X in the dashboard when running locally, your server
     *   Once the webhook is added and validated by X (the dashboard backend handles the CRC check), go to the "Subscriptions" tab to subscribe the desired user to this webhook.
     *   Navigate to the "Live Events" tab to view incoming events.
 
+## Docker Deployment
+
+For production deployment, you can use Docker with nginx as a reverse proxy.
+
+### Prerequisites
+
+*   **Docker:** Install Docker from [docker.com](https://www.docker.com/get-started)
+*   **Docker Compose:** Usually included with Docker Desktop
+
+### Deploy with Docker
+
+1.  **Create your `.env` file** (if not already done):
+    ```bash
+    cp env.template .env
+    # Edit .env with your credentials
+    ```
+
+2.  **Build and run**:
+    ```bash
+    docker compose up -d --build
+    ```
+
+3.  **Access the app** at `http://localhost:8080`
+
+### Docker Commands
+
+```bash
+# View logs
+docker compose logs -f
+
+# View logs for specific service
+docker compose logs -f app
+docker compose logs -f nginx
+
+# Rebuild after code changes
+docker compose up -d --build
+
+# Stop all services
+docker compose down
+
+# Stop and remove volumes
+docker compose down -v
+
+# Restart services
+docker compose restart
+
+# Check running containers
+docker compose ps
+```
+
+### What nginx provides
+
+*   **Reverse proxy** to the Bun app
+*   **WebSocket support** for `/ws/live-events`
+*   **Static file caching** with 7-day expiry
+*   **Gzip compression** for text/JS/CSS/JSON
+*   **Security headers** (XSS, clickjacking protection)
+
 ## Development Notes
 
 *   The backend is built with Bun.js and its native HTTP server.
 *   Frontend assets (HTML, CSS, JavaScript) are served from the `public` directory.
 *   API routes are organized under `src/routes/`.
 *   Live events are pushed to the client via WebSockets.
+
+## Available Scripts
+
+| Command | Description |
+|---------|-------------|
+| `bun install` | Install dependencies |
+| `bun run dev` | Start dev server with hot reload |
+| `bun run build` | Build to `dist/` folder |
+| `bun run start` | Run the built version |
+| `bun run clean` | Remove `dist/` folder |
+| `bun run lint` | Run ESLint |
+| `bun run test` | Run tests |
+| `bun run format` | Format code with Prettier |
 
 ## Troubleshooting
 

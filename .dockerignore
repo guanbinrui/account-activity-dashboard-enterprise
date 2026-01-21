@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Git
+.git/
+.gitignore
+
+# Environment files (will be mounted separately)
+.env
+.env.*
+!env.template
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Docker files (not needed in build context for app)
+docker-compose*.yml
+Dockerfile*
+
+# Documentation
+README.md
+LICENSE
