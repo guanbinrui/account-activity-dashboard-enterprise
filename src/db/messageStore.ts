@@ -1,19 +1,42 @@
 import { Database } from "bun:sqlite";
 import path from "node:path";
+import { mkdirSync } from "node:fs";
 
 // Get the database path
-const currentDir = import.meta.dir;
-const projectRoot =
-    currentDir.includes("/dist") || currentDir.includes("\\dist")
-        ? path.resolve(currentDir, "../..")
-        : path.resolve(currentDir, "..");
-const dbPath = path.resolve(projectRoot, "messages.db");
+// Priority: DB_PATH > DATA_DIR/data/messages.db > auto-resolve
+let dbPath: string;
+if (process.env.DB_PATH) {
+    // Use explicit database file path if provided
+    dbPath = process.env.DB_PATH;
+} else {
+    // Determine data directory
+    let dataDir: string;
+    if (process.env.DATA_DIR) {
+        // Use explicit data directory if provided
+        dataDir = process.env.DATA_DIR;
+    } else {
+        // Auto-resolve project root and use data subdirectory
+        const currentDir = import.meta.dir;
+        const projectRoot = currentDir.includes("/dist") || currentDir.includes("\\dist")
+            ? path.resolve(currentDir, "../../..") // Docker: dist/src/db -> ../../../ -> /app
+            : path.resolve(currentDir, ".."); // Development: src/db -> .. -> project root
+        dataDir = path.resolve(projectRoot, "data");
+    }
+    dbPath = path.resolve(dataDir, "messages.db");
+}
 
 // Initialize database connection
 let db: Database | null = null;
 
 function getDatabase(): Database {
     if (!db) {
+        // Ensure data directory exists (extract directory from dbPath)
+        const dbDir = path.dirname(dbPath);
+        try {
+            mkdirSync(dbDir, { recursive: true });
+        } catch (error) {
+            console.error(`[DB] Error creating data directory: ${error}`);
+        }
         db = new Database(dbPath);
         initializeSchema();
     }
