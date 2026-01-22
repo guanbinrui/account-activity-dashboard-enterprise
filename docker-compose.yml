@@ -8,5 +8,3 @@ services:
         container_name: x-webhook-receiver
         environment:
             - PORT=3000
-            # Configure data directory to match volume mount
-            - DATA_DIR=/app/data

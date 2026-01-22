@@ -2,29 +2,14 @@ import { Database } from "bun:sqlite";
 import path from "node:path";
 import { mkdirSync } from "node:fs";
 
-// Get the database path
-// Priority: DB_PATH > DATA_DIR/data/messages.db > auto-resolve
-let dbPath: string;
-if (process.env.DB_PATH) {
-    // Use explicit database file path if provided
-    dbPath = process.env.DB_PATH;
-} else {
-    // Determine data directory
-    let dataDir: string;
-    if (process.env.DATA_DIR) {
-        // Use explicit data directory if provided
-        dataDir = process.env.DATA_DIR;
-    } else {
-        // Auto-resolve project root and use data subdirectory
-        const currentDir = import.meta.dir;
-        const projectRoot =
-            currentDir.includes("/dist") || currentDir.includes("\\dist")
-                ? path.resolve(currentDir, "../../..") // Docker: dist/src/db -> ../../../ -> /app
-                : path.resolve(currentDir, ".."); // Development: src/db -> .. -> project root
-        dataDir = path.resolve(projectRoot, "data");
-    }
-    dbPath = path.resolve(dataDir, "messages.db");
-}
+// Get the database path using auto-resolution
+const currentDir = import.meta.dir;
+const projectRoot =
+    currentDir.includes("/dist") || currentDir.includes("\\dist")
+        ? path.resolve(currentDir, "../../..") // Docker: dist/src/db -> ../../../ -> /app
+        : path.resolve(currentDir, ".."); // Development: src/db -> .. -> project root
+const dataDir = path.resolve(projectRoot, "data");
+const dbPath = path.resolve(dataDir, "messages.db");
 
 // Initialize database connection
 let db: Database | null = null;
