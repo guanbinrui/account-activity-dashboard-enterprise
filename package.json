@@ -1,25 +1,26 @@
 {
-  "name": "account-activity-dashboard-enterprise",
-  "module": "index.ts",
-  "type": "module",
-  "private": true,
-  "scripts": {
-    "start": "bun dist/index.js",
-    "dev": "bun --watch index.ts",
-    "build": "bun build index.ts --outdir dist --target bun && cp -r public dist/ && cp index.html dist/",
-    "clean": "rm -rf dist",
-    "lint": "eslint .",
-    "test": "jest",
-    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
-    "precommit": "lint-staged"
-  },
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  },
-  "dependencies": {
-    "oauth-1.0a": "^2.2.6"
-  }
+    "name": "account-activity-dashboard-enterprise",
+    "module": "index.ts",
+    "type": "module",
+    "private": true,
+    "scripts": {
+        "start": "bun dist/index.js",
+        "dev": "bun --watch index.ts",
+        "build": "bun build index.ts --outdir dist --target bun && cp -r public dist/ && cp index.html dist/ && cp login.html dist/",
+        "clean": "rm -rf dist",
+        "lint": "eslint .",
+        "test": "jest",
+        "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
+        "precommit": "lint-staged"
+    },
+    "devDependencies": {
+        "@types/bun": "latest",
+        "prettier": "^3.0.0"
+    },
+    "peerDependencies": {
+        "typescript": "^5"
+    },
+    "dependencies": {
+        "oauth-1.0a": "^2.2.6"
+    }
 }

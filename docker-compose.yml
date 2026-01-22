@@ -1,12 +1,10 @@
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    restart: unless-stopped
-    env_file:
-      - .env
-    environment:
-      - PORT=3000
-    ports:
-      - "8080:3000"
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        restart: unless-stopped
+        image: x-webhook-receiver
+        container_name: x-webhook-receiver
+        environment:
+            - PORT=3000

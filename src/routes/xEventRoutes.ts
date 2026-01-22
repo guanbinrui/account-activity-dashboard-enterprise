@@ -1,9 +1,16 @@
-import crypto from 'crypto';
+import crypto from "crypto";
 
 // Helper to create a JSON response (can be shared or redefined)
-function jsonResponse(status: number, body: any, method: string, pathname: string): Response {
+function jsonResponse(
+    status: number,
+    body: any,
+    method: string,
+    pathname: string
+): Response {
     const bodyStr = JSON.stringify(body);
-    console.log(`[X_EVENT_RESPONSE] ${method} ${pathname} - Status: ${status}, Body: ${bodyStr}`);
+    console.log(
+        `[X_EVENT_RESPONSE] ${method} ${pathname} - Status: ${status}, Body: ${bodyStr}`
+    );
     return new Response(bodyStr, {
         status,
         headers: { "Content-Type": "application/json" },
@@ -11,51 +18,90 @@ function jsonResponse(status: number, body: any, method: string, pathname: strin
 }
 
 // Helper for plain text or empty response
-function textResponse(status: number, text: string, method: string, pathname: string): Response {
-    console.log(`[X_EVENT_RESPONSE] ${method} ${pathname} - Status: ${status}, Body: ${text || "(empty)"}`);
+function textResponse(
+    status: number,
+    text: string,
+    method: string,
+    pathname: string
+): Response {
+    console.log(
+        `[X_EVENT_RESPONSE] ${method} ${pathname} - Status: ${status}, Body: ${text || "(empty)"}`
+    );
     return new Response(text, { status });
 }
 
 async function handleCrcCheck(req: Request, url: URL): Promise<Response> {
-    const crcToken = url.searchParams.get('crc_token');
-    console.log(`[X_EVENT_CRC] Received GET request for CRC check. CRC Token: ${crcToken}`);
+    const crcToken = url.searchParams.get("crc_token");
+    console.log(
+        `[X_EVENT_CRC] Received GET request for CRC check. CRC Token: ${crcToken}`
+    );
 
     if (!crcToken) {
-        console.error("[X_EVENT_CRC] Error: crc_token missing from query parameters.");
-        return jsonResponse(400, { error: "crc_token query parameter missing" }, req.method, url.pathname);
+        console.error(
+            "[X_EVENT_CRC] Error: crc_token missing from query parameters."
+        );
+        return jsonResponse(
+            400,
+            { error: "crc_token query parameter missing" },
+            req.method,
+            url.pathname
+        );
     }
 
     const consumerSecret = process.env.X_CONSUMER_SECRET;
     if (!consumerSecret) {
-        console.error("[X_EVENT_CRC] Error: X_CONSUMER_SECRET is not set in environment variables.");
-        return jsonResponse(500, { error: "Server configuration error: Missing consumer secret." }, req.method, url.pathname);
+        console.error(
+            "[X_EVENT_CRC] Error: X_CONSUMER_SECRET is not set in environment variables."
+        );
+        return jsonResponse(
+            500,
+            { error: "Server configuration error: Missing consumer secret." },
+            req.method,
+            url.pathname
+        );
     }
 
     try {
         const hmac = crypto.createHmac("sha256", consumerSecret);
         hmac.update(crcToken);
         const responseToken = "sha256=" + hmac.digest("base64");
-        
-        console.log(`[X_EVENT_CRC] Generated response_token: ${responseToken}`);
-        return jsonResponse(200, { response_token: responseToken }, req.method, url.pathname);
 
+        console.log(`[X_EVENT_CRC] Generated response_token: ${responseToken}`);
+        return jsonResponse(
+            200,
+            { response_token: responseToken },
+            req.method,
+            url.pathname
+        );
     } catch (error) {
-        console.error("[X_EVENT_CRC] Error during HMAC SHA256 generation:", error);
-        return jsonResponse(500, { error: "Internal server error during CRC processing." }, req.method, url.pathname);
+        console.error(
+            "[X_EVENT_CRC] Error during HMAC SHA256 generation:",
+            error
+        );
+        return jsonResponse(
+            500,
+            { error: "Internal server error during CRC processing." },
+            req.method,
+            url.pathname
+        );
     }
 }
 
 // Update handleEventPost to accept and use the broadcast function
-async function handleEventPost(req: Request, url: URL, broadcastFunction: (message: any) => void): Promise<Response> {
+async function handleEventPost(
+    req: Request,
+    url: URL,
+    callback: (message: any) => void | Promise<void>
+): Promise<Response> {
     console.log(`[X_EVENT_POST] Received POST request for event data.`);
     try {
         const eventData = await req.json();
         console.log("[X_EVENT_POST] --- Received Webhook Event ---");
         console.log(JSON.stringify(eventData, null, 2));
         console.log("[X_EVENT_POST] -----------------------------");
-        
-        // Broadcast the event to connected WebSocket clients
-        broadcastFunction(eventData);
+
+        // Call the callback (which may be async for persistence)
+        await callback(eventData);
 
         return textResponse(200, "", req.method, url.pathname); // X expects 200 OK
     } catch (error) {
@@ -67,7 +113,10 @@ async function handleEventPost(req: Request, url: URL, broadcastFunction: (messa
         } catch (e) {
             // Ignore if reading as text also fails
         }
-        console.error("[X_EVENT_POST] Error processing POST request or non-JSON body:", error);
+        console.error(
+            "[X_EVENT_POST] Error processing POST request or non-JSON body:",
+            error
+        );
         console.log(`[X_EVENT_POST] Body: ${requestBodyText}`);
         // Even if there's an error processing, X might expect a 200 OK
         // to prevent retries, or a specific error code if it's a malformed request.
@@ -77,20 +126,30 @@ async function handleEventPost(req: Request, url: URL, broadcastFunction: (messa
     }
 }
 
-
-export async function handleXEventRoutes(req: Request, url: URL, broadcastFunction: (message: any) => void): Promise<Response | null> {
+export async function handleXEventRoutes(
+    req: Request,
+    url: URL,
+    callback: (message: any) => void | Promise<void>
+): Promise<Response | null> {
     // Assuming the path is /webhooks/twitter as per the X example
-    if (url.pathname === '/webhooks/twitter') {
-        if (req.method === 'GET') {
+    if (url.pathname === "/webhooks/twitter") {
+        if (req.method === "GET") {
             return handleCrcCheck(req, url);
         }
-        if (req.method === 'POST') {
+        if (req.method === "POST") {
             // Pass the broadcast function to handleEventPost
-            return handleEventPost(req, url, broadcastFunction);
+            return handleEventPost(req, url, callback);
         }
         // Method Not Allowed for other HTTP methods on this path
-        console.log(`[X_EVENT_HANDLER] Method ${req.method} not allowed for ${url.pathname}`);
-        return textResponse(405, "Method Not Allowed", req.method, url.pathname);
+        console.log(
+            `[X_EVENT_HANDLER] Method ${req.method} not allowed for ${url.pathname}`
+        );
+        return textResponse(
+            405,
+            "Method Not Allowed",
+            req.method,
+            url.pathname
+        );
     }
     return null; // Not a route handled by this module
-} 
+}

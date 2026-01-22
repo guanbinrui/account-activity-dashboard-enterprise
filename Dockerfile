@@ -24,7 +24,12 @@ WORKDIR /app
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/index.html ./index.html
+COPY --from=builder /app/login.html ./login.html
 COPY --from=builder /app/index.html ./dist/index.html
+COPY --from=builder /app/login.html ./dist/login.html
+
+# Copy environment file into the image
+COPY .env .env
 
 # Set environment
 ENV NODE_ENV=production
@@ -32,4 +37,4 @@ ENV PORT=3000
 
 EXPOSE 3000
 
-CMD ["bun", "dist/index.js"]
+CMD ["bun", "--env-file=.env", "dist/index.js"]

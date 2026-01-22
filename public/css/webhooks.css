@@ -2,7 +2,7 @@
     list-style-type: none;
     padding: 0;
     margin-top: 20px;
-    width: 80%; 
+    width: 80%;
     max-width: 1200px;
 }
 #webhooks-list li {
@@ -20,7 +20,7 @@
 }
 #webhooks-list li strong {
     display: inline-block;
-    width: 120px; 
+    width: 120px;
 }
 
 .webhook-card-content {
@@ -43,7 +43,7 @@
 }
 
 .delete-webhook-btn {
-    background-color: transparent; 
+    background-color: transparent;
     border: 1px solid #f44336; /* Red outline */
     padding: 5px; /* Adjust padding for icon */
     text-align: center;
@@ -53,11 +53,13 @@
     justify-content: center; /* Center SVG horizontally */
     border-radius: 4px;
     cursor: pointer;
-    margin-left: 5px; 
-    margin-bottom: 0; 
-    transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
-    width: 28px; 
-    height: 28px; 
+    margin-left: 5px;
+    margin-bottom: 0;
+    transition:
+        background-color 0.2s ease-in-out,
+        transform 0.2s ease-in-out;
+    width: 28px;
+    height: 28px;
 }
 .delete-webhook-btn:hover {
     background-color: rgba(244, 67, 54, 0.15); /* Slightly more opaque tint */
@@ -65,21 +67,23 @@
 }
 
 .validate-webhook-btn {
-    background-color: transparent; 
+    background-color: transparent;
     border: 1px solid #6c757d; /* Gray outline */
-    padding: 5px; 
+    padding: 5px;
     text-align: center;
     text-decoration: none;
-    display: inline-flex; 
-    align-items: center; 
-    justify-content: center; 
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     border-radius: 4px;
     cursor: pointer;
-    margin-left: 5px; 
-    margin-bottom: 0; 
-    transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
-    width: 28px; 
-    height: 28px; 
+    margin-left: 5px;
+    margin-bottom: 0;
+    transition:
+        background-color 0.2s ease-in-out,
+        transform 0.2s ease-in-out;
+    width: 28px;
+    height: 28px;
     position: relative; /* For spinner positioning context if re-added to button */
 }
 .validate-webhook-btn:hover {
@@ -88,21 +92,23 @@
 }
 
 .replay-webhook-btn {
-    background-color: transparent; 
+    background-color: transparent;
     border: 1px solid #6c757d; /* Gray outline */
-    padding: 5px; 
+    padding: 5px;
     text-align: center;
     text-decoration: none;
-    display: inline-flex; 
-    align-items: center; 
-    justify-content: center; 
-    margin-left: 0; 
-    margin-bottom: 0; 
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 0;
+    margin-bottom: 0;
     cursor: pointer;
-    border-radius: 3px; 
-    transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
-    width: 28px; 
-    height: 28px; 
+    border-radius: 3px;
+    transition:
+        background-color 0.2s ease-in-out,
+        transform 0.2s ease-in-out;
+    width: 28px;
+    height: 28px;
 }
 
 .replay-webhook-btn:hover {
@@ -118,7 +124,7 @@
     max-width: 800px;
     display: flex;
     flex-direction: column;
-    align-items: stretch; 
+    align-items: stretch;
 }
 #add-webhook-form h3 {
     margin-top: 0;
@@ -137,7 +143,7 @@
     font-size: 16px;
 }
 #add-webhook-btn {
-    background-color: #4CAF50; 
+    background-color: #4caf50;
     color: white;
     border: none;
     padding: 10px 15px;
@@ -160,4 +166,4 @@
     min-height: 30px; /* Give it some space */
     margin: 15px 0;
     font-size: 0.9em;
-} 
+}

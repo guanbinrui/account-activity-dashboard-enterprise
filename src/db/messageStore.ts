@@ -1,0 +1,130 @@
+import { Database } from "bun:sqlite";
+import path from "node:path";
+
+// Get the database path
+const currentDir = import.meta.dir;
+const projectRoot =
+    currentDir.includes("/dist") || currentDir.includes("\\dist")
+        ? path.resolve(currentDir, "../..")
+        : path.resolve(currentDir, "..");
+const dbPath = path.resolve(projectRoot, "messages.db");
+
+// Initialize database connection
+let db: Database | null = null;
+
+function getDatabase(): Database {
+    if (!db) {
+        db = new Database(dbPath);
+        initializeSchema();
+    }
+    return db;
+}
+
+function initializeSchema() {
+    if (!db) return;
+
+    // Create messages table
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id TEXT NOT NULL,
+            message_data TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `);
+
+    // Create indexes
+    db.exec(`
+        CREATE INDEX IF NOT EXISTS idx_user_id ON messages(user_id)
+    `);
+
+    db.exec(`
+        CREATE INDEX IF NOT EXISTS idx_created_at ON messages(created_at)
+    `);
+
+    console.log(`[DB] Database initialized at ${dbPath}`);
+}
+
+/**
+ * Persist a message to the database
+ * Messages are stored indefinitely without expiration or limit
+ */
+export async function persistMessage(message: any): Promise<void> {
+    try {
+        const userId = message?.for_user_id;
+
+        if (!userId) {
+            console.warn(
+                "[DB] Message missing for_user_id, skipping persistence"
+            );
+            return;
+        }
+
+        const database = getDatabase();
+        const messageData = JSON.stringify(message);
+
+        // Insert the new message
+        const insertQuery = database.prepare<unknown, [string, string]>(
+            "INSERT INTO messages (user_id, message_data) VALUES (?, ?)"
+        );
+        insertQuery.run(userId, messageData);
+
+        console.log(`[DB] Persisted message for user ${userId}`);
+    } catch (error) {
+        console.error("[DB] Error persisting message:", error);
+        // Don't throw - we don't want to break the webhook processing
+    }
+}
+
+/**
+ * Get messages for a specific user
+ */
+export function getMessagesForUser(userId: string, limit: number = 100): any[] {
+    try {
+        const database = getDatabase();
+        const query = database.prepare<
+            { message_data: string },
+            [string, number]
+        >(
+            "SELECT message_data FROM messages WHERE user_id = ? ORDER BY created_at DESC, id DESC LIMIT ?"
+        );
+
+        const results = query.all(userId, limit);
+        return results.map((row) => JSON.parse(row.message_data));
+    } catch (error) {
+        console.error(
+            `[DB] Error retrieving messages for user ${userId}:`,
+            error
+        );
+        return [];
+    }
+}
+
+/**
+ * Get all messages (for debugging/admin purposes)
+ */
+export function getAllMessages(limit: number = 1000): any[] {
+    try {
+        const database = getDatabase();
+        const query = database.prepare<{ message_data: string }, [number]>(
+            "SELECT message_data FROM messages ORDER BY created_at DESC, id DESC LIMIT ?"
+        );
+
+        const results = query.all(limit);
+        return results.map((row) => JSON.parse(row.message_data));
+    } catch (error) {
+        console.error("[DB] Error retrieving all messages:", error);
+        return [];
+    }
+}
+
+/**
+ * Close the database connection (useful for cleanup)
+ */
+export function closeDatabase(): void {
+    if (db) {
+        db.close();
+        db = null;
+        console.log("[DB] Database connection closed");
+    }
+}

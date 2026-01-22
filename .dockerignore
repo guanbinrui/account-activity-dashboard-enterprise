@@ -8,9 +8,10 @@ dist/
 .git/
 .gitignore
 
-# Environment files (will be mounted separately)
-.env
+# Environment files
+# Note: .env is now baked into the image
 .env.*
+!.env
 !env.template
 
 # IDE
