@@ -171,18 +171,21 @@ Retrieve user details from X (Twitter) API.
 
 ### GET `/api/messages`
 
-Retrieve stored message records from the database for a specific user.
+Retrieve stored message records from the database for a specific user with pagination support.
 
 **Query Parameters:**
 
 - `user_id` (string, required): The user ID to fetch messages for
-- `limit` (number, optional): Maximum number of messages to return (default: 100, max: 1000)
+- `size` (number, optional): Number of records to return per page (default: 25, max: 25)
+- `cursor` (number, optional): Starting position/offset for pagination (default: 0, must be non-negative integer)
 
 **Example:**
 
 ```
 GET /api/messages?user_id=12345
-GET /api/messages?user_id=12345&limit=50
+GET /api/messages?user_id=12345&size=25
+GET /api/messages?user_id=12345&size=25&cursor=0
+GET /api/messages?user_id=12345&size=25&cursor=25
 ```
 
 **Response:**
@@ -192,6 +195,8 @@ GET /api/messages?user_id=12345&limit=50
     ```json
     {
         "user_id": "12345",
+        "size": 25,
+        "cursor": 0,
         "count": 10,
         "messages": [
             {
@@ -215,7 +220,15 @@ GET /api/messages?user_id=12345&limit=50
 
     ```json
     {
-        "error": "Invalid 'limit' query parameter. Must be a number between 1 and 1000."
+        "error": "Invalid 'size' query parameter. Must be a number between 1 and 25."
+    }
+    ```
+
+    or
+
+    ```json
+    {
+        "error": "Invalid 'cursor' query parameter. Must be a non-negative integer."
     }
     ```
 
@@ -236,7 +249,8 @@ GET /api/messages?user_id=12345&limit=50
 - Messages are automatically persisted when received via the `/webhooks/twitter` POST endpoint
 - Messages are stored indefinitely without expiration
 - Results are ordered by `created_at` descending (most recent first)
-- The `limit` parameter allows pagination of results
+- Use `cursor` for pagination: start with `cursor=0`, then use `cursor=25` for the next page, `cursor=50` for the page after that, etc.
+- The `size` parameter controls how many records are returned per request (default: 25, maximum: 25)
 
 ---
 

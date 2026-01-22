@@ -31,15 +31,30 @@ async function getMessages(req: Request, url: URL): Promise<Response> {
         );
     }
 
-    // Optional limit parameter (defaults to 100 in getMessagesForUser)
-    const limitParam = url.searchParams.get("limit");
-    const limit = limitParam ? parseInt(limitParam, 10) : 100;
+    // Parse size parameter (default: 25, max: 25)
+    const sizeParam = url.searchParams.get("size");
+    const size = sizeParam ? parseInt(sizeParam, 10) : 25;
 
-    if (limitParam && (isNaN(limit) || limit < 1 || limit > 1000)) {
+    if (sizeParam && (isNaN(size) || size < 1 || size > 25)) {
         return jsonResponse(
             400,
             {
-                error: "Invalid 'limit' query parameter. Must be a number between 1 and 1000.",
+                error: "Invalid 'size' query parameter. Must be a number between 1 and 25.",
+            },
+            req.method,
+            url.pathname
+        );
+    }
+
+    // Parse cursor parameter (default: 0)
+    const cursorParam = url.searchParams.get("cursor");
+    const cursor = cursorParam ? parseInt(cursorParam, 10) : 0;
+
+    if (cursorParam && (isNaN(cursor) || cursor < 0)) {
+        return jsonResponse(
+            400,
+            {
+                error: "Invalid 'cursor' query parameter. Must be a non-negative integer.",
             },
             req.method,
             url.pathname
@@ -47,11 +62,13 @@ async function getMessages(req: Request, url: URL): Promise<Response> {
     }
 
     try {
-        const messages = getMessagesForUser(userId, limit);
+        const messages = getMessagesForUser(userId, size, cursor);
         return jsonResponse(
             200,
             {
                 user_id: userId,
+                size: size,
+                cursor: cursor,
                 count: messages.length,
                 messages: messages,
             },

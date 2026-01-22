@@ -77,19 +77,27 @@ export async function persistMessage(message: any): Promise<void> {
 }
 
 /**
- * Get messages for a specific user
+ * Get messages for a specific user with pagination
+ * @param userId - The user ID to fetch messages for
+ * @param size - Number of records to return (default: 25, max: 25)
+ * @param cursor - Offset/starting position (default: 0)
+ * @returns Array of message objects
  */
-export function getMessagesForUser(userId: string, limit: number = 100): any[] {
+export function getMessagesForUser(
+    userId: string,
+    size: number = 25,
+    cursor: number = 0
+): any[] {
     try {
         const database = getDatabase();
         const query = database.prepare<
             { message_data: string },
-            [string, number]
+            [string, number, number]
         >(
-            "SELECT message_data FROM messages WHERE user_id = ? ORDER BY created_at DESC, id DESC LIMIT ?"
+            "SELECT message_data FROM messages WHERE user_id = ? ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?"
         );
 
-        const results = query.all(userId, limit);
+        const results = query.all(userId, size, cursor);
         return results.map((row) => JSON.parse(row.message_data));
     } catch (error) {
         console.error(
