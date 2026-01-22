@@ -200,7 +200,7 @@ export function shouldSkipAuth(pathname: string): boolean {
 
 /**
  * Check if a path supports API key authentication
- * These paths can be accessed with either session cookie or X_API_KEY header
+ * These paths can be accessed with either session cookie or X-API-KEY header
  */
 export function supportsApiKey(pathname: string): boolean {
     // Exact match for /api/messages
@@ -222,7 +222,7 @@ export function supportsApiKey(pathname: string): boolean {
  * Extract API key from request headers
  */
 export function getApiKeyFromRequest(req: Request): string | null {
-    return req.headers.get("X_API_KEY");
+    return req.headers.get("X-API-KEY");
 }
 
 /**

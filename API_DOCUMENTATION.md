@@ -249,19 +249,19 @@ GET /api/messages?user_id=12345&size=25&cursor=25
     }
     ```
 
-**Authentication:** Required (session cookie or `X_API_KEY` header)
+**Authentication:** Required (session cookie or `X-API-KEY` header)
 
 This endpoint supports two authentication methods:
 
 - **Session Cookie**: Standard authentication via session cookie (set after login)
-- **API Key**: RESTful API access via `X_API_KEY` header
+- **API Key**: RESTful API access via `X-API-KEY` header
 
 **Example with API Key:**
 
 ```
 GET /api/messages?user_id=12345
 Headers:
-  X_API_KEY: your-api-key-here
+  X-API-KEY: your-api-key-here
 ```
 
 **Notes:**
@@ -545,19 +545,19 @@ List all subscriptions for a webhook.
     }
     ```
 
-**Authentication:** Required (session cookie or `X_API_KEY` header)
+**Authentication:** Required (session cookie or `X-API-KEY` header)
 
 This endpoint supports two authentication methods:
 
 - **Session Cookie**: Standard authentication via session cookie (set after login)
-- **API Key**: RESTful API access via `X_API_KEY` header
+- **API Key**: RESTful API access via `X-API-KEY` header
 
 **Example with API Key:**
 
 ```
 GET /api/webhooks/{webhookId}/subscriptions
 Headers:
-  X_API_KEY: your-api-key-here
+  X-API-KEY: your-api-key-here
 ```
 
 **Notes:**
@@ -624,19 +624,19 @@ Add a subscription to a webhook (subscribes to all event types for the authentic
     }
     ```
 
-**Authentication:** Required (session cookie or `X_API_KEY` header)
+**Authentication:** Required (session cookie or `X-API-KEY` header)
 
 This endpoint supports two authentication methods:
 
 - **Session Cookie**: Standard authentication via session cookie (set after login)
-- **API Key**: RESTful API access via `X_API_KEY` header
+- **API Key**: RESTful API access via `X-API-KEY` header
 
 **Example with API Key:**
 
 ```
 POST /api/webhooks/{webhookId}/subscriptions
 Headers:
-  X_API_KEY: your-api-key-here
+  X-API-KEY: your-api-key-here
   Content-Type: application/json
 Body:
   {
@@ -693,19 +693,19 @@ Remove a subscription from a webhook.
     }
     ```
 
-**Authentication:** Required (session cookie or `X_API_KEY` header)
+**Authentication:** Required (session cookie or `X-API-KEY` header)
 
 This endpoint supports two authentication methods:
 
 - **Session Cookie**: Standard authentication via session cookie (set after login)
-- **API Key**: RESTful API access via `X_API_KEY` header
+- **API Key**: RESTful API access via `X-API-KEY` header
 
 **Example with API Key:**
 
 ```
 DELETE /api/webhooks/{webhookId}/subscriptions/{userId}
 Headers:
-  X_API_KEY: your-api-key-here
+  X-API-KEY: your-api-key-here
 ```
 
 **Notes:**
