@@ -17,9 +17,10 @@ if (process.env.DB_PATH) {
     } else {
         // Auto-resolve project root and use data subdirectory
         const currentDir = import.meta.dir;
-        const projectRoot = currentDir.includes("/dist") || currentDir.includes("\\dist")
-            ? path.resolve(currentDir, "../../..") // Docker: dist/src/db -> ../../../ -> /app
-            : path.resolve(currentDir, ".."); // Development: src/db -> .. -> project root
+        const projectRoot =
+            currentDir.includes("/dist") || currentDir.includes("\\dist")
+                ? path.resolve(currentDir, "../../..") // Docker: dist/src/db -> ../../../ -> /app
+                : path.resolve(currentDir, ".."); // Development: src/db -> .. -> project root
         dataDir = path.resolve(projectRoot, "data");
     }
     dbPath = path.resolve(dataDir, "messages.db");

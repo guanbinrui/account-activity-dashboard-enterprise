@@ -80,6 +80,7 @@ Logout and invalidate the current session.
 **Response:**
 
 - **200 OK**: Logout successful
+
     ```json
     {
         "success": true
@@ -201,7 +202,7 @@ GET /api/messages?user_id=12345&size=25&cursor=25
         "messages": [
             {
                 "for_user_id": "12345",
-                "tweet_create_events": [],
+                "tweet_create_events": []
                 // ... other event data from X API
             }
         ]

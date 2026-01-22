@@ -8,10 +8,5 @@ services:
         container_name: x-webhook-receiver
         environment:
             - PORT=3000
-            # Optional: Configure database path
-            # - DB_PATH=/app/data/messages.db
-            # Or configure data directory (database will be at DATA_DIR/messages.db)
-            # - DATA_DIR=/app/data
-        volumes:
-            # Persist database file to host machine
-            - ./data:/app/data
+            # Configure data directory to match volume mount
+            - DATA_DIR=/app/data
