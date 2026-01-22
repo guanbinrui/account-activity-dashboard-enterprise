@@ -222,7 +222,6 @@ export function supportsApiKey(pathname: string): boolean {
  * Extract API key from request headers
  */
 export function getApiKeyFromRequest(req: Request): string | null {
-    console.log('DEBUG: req.headers', req.headers);
     return req.headers.get("X_API_KEY");
 }
 
@@ -230,14 +229,9 @@ export function getApiKeyFromRequest(req: Request): string | null {
  * Validate API key using timing-safe comparison
  */
 export function validateApiKey(apiKey: string | null): boolean {
-    console.log('DEBUG: apiKey', apiKey);
-
     if (!apiKey) return false;
 
     const correctApiKey = getApiKey();
-
-    console.log('DEBUG: correctApiKey', correctApiKey);
-
     if (!correctApiKey) {
         // If no API key is configured, API key authentication is disabled
         return false;
