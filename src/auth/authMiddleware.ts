@@ -30,6 +30,14 @@ function getPassword(): string {
     return password;
 }
 
+function getApiKey(): string | null {
+    const apiKey = process.env.X_API_KEY;
+    if (!apiKey) {
+        return null;
+    }
+    return apiKey;
+}
+
 /**
  * Generates a cryptographically secure session token
  */
@@ -191,11 +199,67 @@ export function shouldSkipAuth(pathname: string): boolean {
 }
 
 /**
- * Check if request is authenticated
+ * Check if a path supports API key authentication
+ * These paths can be accessed with either session cookie or X_API_KEY header
+ */
+export function supportsApiKey(pathname: string): boolean {
+    // Exact match for /api/messages
+    if (pathname === "/api/messages") {
+        return true;
+    }
+
+    // Pattern match for subscription routes:
+    // /api/webhooks/:id/subscriptions
+    // /api/webhooks/:id/subscriptions/:userId
+    if (/^\/api\/webhooks\/[^/]+\/subscriptions(\/.*)?$/.test(pathname)) {
+        return true;
+    }
+
+    return false;
+}
+
+/**
+ * Extract API key from request headers
+ */
+export function getApiKeyFromRequest(req: Request): string | null {
+    return req.headers.get("X_API_KEY");
+}
+
+/**
+ * Validate API key using timing-safe comparison
+ */
+export function validateApiKey(apiKey: string | null): boolean {
+    if (!apiKey) return false;
+
+    const correctApiKey = getApiKey();
+    if (!correctApiKey) {
+        // If no API key is configured, API key authentication is disabled
+        return false;
+    }
+
+    return timingSafeCompare(apiKey, correctApiKey);
+}
+
+/**
+ * Check if request is authenticated via session cookie
  */
 export function isAuthenticated(req: Request): boolean {
     const token = getSessionFromRequest(req);
     return validateSession(token);
+}
+
+/**
+ * Check if request is authenticated via either session cookie or API key
+ */
+export function isAuthenticatedOrHasValidApiKey(req: Request): boolean {
+    // First check session authentication
+    if (isAuthenticated(req)) {
+        return true;
+    }
+
+    // Then check API key authentication
+    const apiKey = getApiKeyFromRequest(req);
+    return validateApiKey(apiKey);
 }
 
 /**

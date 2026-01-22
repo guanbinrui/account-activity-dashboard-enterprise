@@ -1,7 +1,9 @@
 import path from "node:path";
 import {
     isAuthenticated,
+    isAuthenticatedOrHasValidApiKey,
     shouldSkipAuth,
+    supportsApiKey,
     redirectToLogin,
 } from "../auth/authMiddleware";
 
@@ -64,23 +66,41 @@ export async function handleLoginRoutes(
 export function checkAuthentication(req: Request, url: URL): Response | null {
     // Check authentication for protected routes
     if (!shouldSkipAuth(url.pathname)) {
-        if (!isAuthenticated(req)) {
-            console.log(
-                `[AUTH] Unauthenticated request to ${url.pathname} - redirecting to login`
-            );
-
-            // For API requests, return 401 instead of redirect
-            if (
-                url.pathname.startsWith("/api/") ||
-                url.pathname.startsWith("/ws/")
-            ) {
+        // Check if this is a route that supports API key authentication
+        if (supportsApiKey(url.pathname)) {
+            // Allow either session cookie or API key authentication
+            if (!isAuthenticatedOrHasValidApiKey(req)) {
+                console.log(
+                    `[AUTH] Unauthenticated request to ${url.pathname} - no valid session or API key`
+                );
                 return new Response(JSON.stringify({ error: "Unauthorized" }), {
                     status: 401,
                     headers: { "Content-Type": "application/json" },
                 });
             }
+        } else {
+            // For all other protected routes, require session authentication
+            if (!isAuthenticated(req)) {
+                console.log(
+                    `[AUTH] Unauthenticated request to ${url.pathname} - redirecting to login`
+                );
 
-            return redirectToLogin();
+                // For API requests, return 401 instead of redirect
+                if (
+                    url.pathname.startsWith("/api/") ||
+                    url.pathname.startsWith("/ws/")
+                ) {
+                    return new Response(
+                        JSON.stringify({ error: "Unauthorized" }),
+                        {
+                            status: 401,
+                            headers: { "Content-Type": "application/json" },
+                        }
+                    );
+                }
+
+                return redirectToLogin();
+            }
         }
     }
 

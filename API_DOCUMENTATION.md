@@ -234,6 +234,13 @@ GET /api/messages?user_id=12345&size=25&cursor=25
     ```
 
 - **401 Unauthorized**: Not authenticated
+
+    ```json
+    {
+        "error": "Unauthorized"
+    }
+    ```
+
 - **500 Internal Server Error**: Database error
 
     ```json
@@ -242,7 +249,20 @@ GET /api/messages?user_id=12345&size=25&cursor=25
     }
     ```
 
-**Authentication:** Required (session cookie)
+**Authentication:** Required (session cookie or `X_API_KEY` header)
+
+This endpoint supports two authentication methods:
+
+- **Session Cookie**: Standard authentication via session cookie (set after login)
+- **API Key**: RESTful API access via `X_API_KEY` header
+
+**Example with API Key:**
+
+```
+GET /api/messages?user_id=12345
+Headers:
+  X_API_KEY: your-api-key-here
+```
 
 **Notes:**
 
@@ -504,6 +524,13 @@ List all subscriptions for a webhook.
     ```
 
 - **401 Unauthorized**: Not authenticated
+
+    ```json
+    {
+        "error": "Unauthorized"
+    }
+    ```
+
 - **500 Internal Server Error**: Server configuration error or Twitter API error
     ```json
     {
@@ -518,7 +545,20 @@ List all subscriptions for a webhook.
     }
     ```
 
-**Authentication:** Required (session cookie)
+**Authentication:** Required (session cookie or `X_API_KEY` header)
+
+This endpoint supports two authentication methods:
+
+- **Session Cookie**: Standard authentication via session cookie (set after login)
+- **API Key**: RESTful API access via `X_API_KEY` header
+
+**Example with API Key:**
+
+```
+GET /api/webhooks/{webhookId}/subscriptions
+Headers:
+  X_API_KEY: your-api-key-here
+```
 
 **Notes:**
 
@@ -563,6 +603,13 @@ Add a subscription to a webhook (subscribes to all event types for the authentic
 - **204 No Content**: Subscription successful (or already exists)
 
 - **401 Unauthorized**: Not authenticated
+
+    ```json
+    {
+        "error": "Unauthorized"
+    }
+    ```
+
 - **500 Internal Server Error**: Server configuration error or Twitter API error
     ```json
     {
@@ -577,7 +624,26 @@ Add a subscription to a webhook (subscribes to all event types for the authentic
     }
     ```
 
-**Authentication:** Required (session cookie)
+**Authentication:** Required (session cookie or `X_API_KEY` header)
+
+This endpoint supports two authentication methods:
+
+- **Session Cookie**: Standard authentication via session cookie (set after login)
+- **API Key**: RESTful API access via `X_API_KEY` header
+
+**Example with API Key:**
+
+```
+POST /api/webhooks/{webhookId}/subscriptions
+Headers:
+  X_API_KEY: your-api-key-here
+  Content-Type: application/json
+Body:
+  {
+    "accessToken": "optional-access-token",
+    "accessTokenSecret": "optional-access-token-secret"
+  }
+```
 
 **Notes:**
 
@@ -606,6 +672,13 @@ Remove a subscription from a webhook.
 - **204 No Content**: Subscription deleted successfully
 
 - **401 Unauthorized**: Not authenticated
+
+    ```json
+    {
+        "error": "Unauthorized"
+    }
+    ```
+
 - **500 Internal Server Error**: Server configuration error or Twitter API error
     ```json
     {
@@ -620,7 +693,20 @@ Remove a subscription from a webhook.
     }
     ```
 
-**Authentication:** Required (session cookie)
+**Authentication:** Required (session cookie or `X_API_KEY` header)
+
+This endpoint supports two authentication methods:
+
+- **Session Cookie**: Standard authentication via session cookie (set after login)
+- **API Key**: RESTful API access via `X_API_KEY` header
+
+**Example with API Key:**
+
+```
+DELETE /api/webhooks/{webhookId}/subscriptions/{userId}
+Headers:
+  X_API_KEY: your-api-key-here
+```
 
 **Notes:**
 
